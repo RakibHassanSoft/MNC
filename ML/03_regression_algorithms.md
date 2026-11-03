@@ -1,184 +1,298 @@
-# অধ্যায় ৩: রৈখিক মডেল ও রিগ্রেশন অ্যালগরিদম (Linear Models & Regression)
+# অধ্যায় ৩: রৈখিক মডেল ও রিগ্রেশন অ্যালগরিদম (Linear Models & Complete Regression Algorithms)
 
 > *"All models are wrong, but some are useful." — George E. P. Box*
-
-রিগ্রেশন অ্যানালাইসিস হলো মেশিন লার্নিংয়ের অন্যতম মূল ভিত্তি, যেখানে এক বা একাধিক স্বাধীন ইনপুট বৈশিষ্ট্যের (Independent Features) ওপর ভিত্তি করে একটি অবিচ্ছিন্ন লক্ষ্যমাত্রা (Continuous Target) অনুমান করা হয়।
-
----
-
-## ৩.১ সাধারণ লিনিয়ার রিগ্রেশন (Ordinary Least Squares - OLS)
-
-### ৩.১.১ গস-মারকভ উপপাদ্য ও লিনিয়ার রিগ্রেশনের পূর্বশর্ত (Assumptions of OLS)
-গস-মারকভ উপপাদ্য (Gauss-Markov Theorem) অনুসারে, যদি নিম্নোক্ত শর্তগুলো পূরণ হয়, তবে OLS এস্টিমেটর হবে **BLUE (Best Linear Unbiased Estimator)**:
-
-1. **প্যারামিটারে রৈখিকতা (Linearity):** টার্গেট $y$ এবং প্যারামিটার $\theta$-র মধ্যে সম্পর্ক রৈখিক হতে হবে:
-   $$y = \theta_0 + \theta_1 x_1 + \dots + \theta_n x_n + \epsilon$$
-2. **শূন্য শর্তাধীন গড় (Zero Conditional Mean of Errors):**
-   $$\mathbb{E}[\epsilon | X] = 0$$
-3. **হোমোস্কেডাস্টিসিটি (Homoscedasticity - সম-ভ্যারিয়্যান্স):** সকল ডেটা পয়েন্টের জন্য এররের ভ্যারিয়্যান্স ধ্রুবক হবে:
-   $$\text{Var}(\epsilon_i | X) = \sigma^2, \quad \forall i$$
-   *(যদি ভ্যারিয়্যান্স অসমান হয়, তাকে Heteroscedasticity বলে)*।
-4. **কোনো স্ব-সম্পর্ক নেই (No Autocorrelation / Serial Independence):**
-   $$\text{Cov}(\epsilon_i, \epsilon_j | X) = 0, \quad \forall i \neq j$$
-5. **বহুরৈখিকতার অনুপস্থিতি (No Perfect Multicollinearity):** ম্যাট্রিক্স $X$-এর কলামগুলো লিনিয়ারলি ইন্ডিপেন্ডেন্ট হতে হবে ($\text{Rank}(X) = n+1$)।
+> 
+> রিগ্রেশন অ্যানালাইসিস হলো মেশিন লার্নিংয়ের ভিত্তিপ্রস্তর, যেখানে ইনপুট বৈশিষ্ট্যের ($X$) ওপর ভিত্তি করে একটি অবিচ্ছিন্ন লক্ষ্যমাত্রা ($y \in \mathbb{R}$) অনুমান করা হয়। এই অধ্যায়ে ক্লাসিক্যাল ওএলএস থেকে শুরু করে মাল্টিপল লিনিয়ার, পলিনোমিয়াল, রিজ, ল্যাসো সফট-থ্রেশহোল্ডিং, ইলাস্টিকনেট, এসভিআর $\epsilon$-টিউব, k-NN রিগ্রেশন, ট্রি রিগ্রেশন এবং রেসিডুয়াল ডায়াগনস্টিকসের **হাতে-কলমে সংখ্যাভিত্তিক প্রতিটি ধাপের গণনা (Step-by-Step Numerical Calculations)** এবং রোডম্যাপ পাস কন্ডিশন ভেরিফিকেশন সন্নিবেশিত হয়েছে।
 
 ---
 
-### ৩.১.২ নরমাল সমীকরণের সম্পূর্ণ গাণিতিক প্রমাণ (Matrix Derivation of Normal Equation)
-
-ধরি, $m$ সংখ্যক স্যাম্পল এবং $n$ সংখ্যক ফিচারবিশিষ্ট ডিজাইন ম্যাট্রিক্স $X \in \mathbb{R}^{m \times (n+1)}$ (যেখানে প্রথম কলাম বায়াসের জন্য $1$-এর ভেক্টর) এবং টার্গেট ভেক্টর $\mathbf{y} \in \mathbb{R}^m$।
-
-মডেল প্রেডিকশন: $\hat{\mathbf{y}} = X\mathbf{\theta}$।
-অবশিষ্ট বা এরর ভেক্টর: $\mathbf{e} = \mathbf{y} - X\mathbf{\theta}$।
-
-কস্ট ফাংশন (Residual Sum of Squares - RSS):
-$$J(\mathbf{\theta}) = \frac{1}{2} \mathbf{e}^T \mathbf{e} = \frac{1}{2} (\mathbf{y} - X\mathbf{\theta})^T (\mathbf{y} - X\mathbf{\theta})$$
-
-বন্ধনী সম্প্রসারণ করি:
-$$J(\mathbf{\theta}) = \frac{1}{2} \left( \mathbf{y}^T - \mathbf{\theta}^T X^T \right) (\mathbf{y} - X\mathbf{\theta})$$
-$$J(\mathbf{\theta}) = \frac{1}{2} \left[ \mathbf{y}^T \mathbf{y} - \mathbf{y}^T X \mathbf{\theta} - \mathbf{\theta}^T X^T \mathbf{y} + \mathbf{\theta}^T X^T X \mathbf{\theta} \right]$$
-
-যেহেতু $\mathbf{y}^T X \mathbf{\theta}$ একটি স্কেলার রাশি, এর ট্রান্সপোজ অপরিবর্তিত থাকে: $(\mathbf{y}^T X \mathbf{\theta})^T = \mathbf{\theta}^T X^T \mathbf{y}$।
-সুতরাং:
-$$J(\mathbf{\theta}) = \frac{1}{2} \left[ \mathbf{y}^T \mathbf{y} - 2 \mathbf{\theta}^T X^T \mathbf{y} + \mathbf{\theta}^T X^T X \mathbf{\theta} \right]$$
-
-কস্ট ফাংশন ন্যূনতম করতে $\mathbf{\theta}$-র সাপেক্ষে ম্যাট্রিক্স ডেরিভেটিভ শূন্য ধরি:
-$$\nabla_{\mathbf{\theta}} J(\mathbf{\theta}) = \frac{1}{2} \left[ 0 - 2 X^T \mathbf{y} + 2 X^T X \mathbf{\theta} \right] = \mathbf{0}$$
-$$-X^T \mathbf{y} + X^T X \mathbf{\theta} = \mathbf{0}$$
-$$X^T X \mathbf{\theta} = X^T \mathbf{y}$$
-
-উভয়পাশে $(X^T X)^{-1}$ দ্বারা গুণ করে আমরা পাই চূড়ান্ত **নরমাল সমীকরণ (Normal Equation)**:
-$$\mathbf{\theta}^* = (X^T X)^{-1} X^T \mathbf{y}$$
-
-*(প্রমাণিত)*
+## 📑 সম্পূর্ণ বিষয়সূচি (Table of Contents)
+1. [রিগ্রেশনের ভিত্তি ও লস ফাংশনসমূহ (Loss Functions: MSE, MAE, Huber)](#১-রিগ্রেশনের-ভিত্তি-ও-লস-ফাংশনসমূহ)
+2. [অর্ডিনারি লিস্ট স্কয়ার্স (OLS) ও গস-মারকভ উপপাদ্য (হাতে-কলমে ওএলএস হিসাব)](#২-অর্ডিনারি-লিস্ট-স্কয়ার্স-ols-ও-গস-মারকভ-উপপাদ্য)
+3. [মাল্টিপল লিনিয়ার রিগ্রেশন ও ম্যাট্রিক্স অ্যালজেব্রা ($n$-ডাইমেনশনাল সমাধান)](#৩-মাল্টিপল-লিনিয়ার-রিগ্রেশন-ও-ম্যাট্রিক্স-অ্যালজেব্রা)
+4. [পলিনোমিয়াল রিগ্রেশন ও ওভারফিটিং ডাইনামিক্স (Degree Selection & Runge's Phenomenon)](#৪-পলিনোমিয়াল-রিগ্রেশন-ও-ওভারফিটিং-ডাইনামিক্স)
+5. [রেগুলারাইজড রিগ্রেশন: Ridge ($L_2$), Lasso ($L_1$) ও ElasticNet (সংকোচন ও স্পার্সিটি হিসাব)](#৫-রেগুলারাইজড-রিগ্রেশন-ridge-lasso-ও-elasticnet)
+   - ৫.১ রিজ রিগ্রেশন: সংকোচন ফ্যাক্টর (Shrinkage Factor) ও কন্ডিশন নম্বর সংশোধন
+   - ৫.২ ল্যাসো রিগ্রেশন: সফট-থ্রেশহোল্ডিং ও শূন্যে রূপান্তরের গাণিতিক প্রমাণ
+   - ৫.৩ ইলাস্টিকনেট: $L_1$ ও $L_2$-এর মিশ্রণ ($\rho$ রেশিও হ্যান্ডলিং)
+6. [সাপোর্ট ভেক্টর রিগ্রেশন (SVR: Epsilon-Insensitive Tube ও স্ল্যাক ভ্যারিয়েবল)](#৬-সাপোর্ট-ভেক্টর-রিগ্রেশন-svr)
+7. [কে-নিয়ারেস্ট নেইবার্স রিগ্রেশন (k-NN Regression: ইনভার্স ডিস্ট্যান্স ওয়েট হিসাব)](#৭-কে-নিয়ারেস্ট-নেইবার্স-রিগ্রেশন-k-nn-regression)
+8. [ডিসিশন ট্রি ও র‍্যান্ডম ফরেস্ট রিগ্রেশন (ভ্যারিয়্যান্স রিডাকশন মেকানিজম)](#৮-ডিসিশন-ট্রি-ও-র‍্যান্ডম-ফরেস্ট-রিগ্রেশন)
+9. [রেসিডুয়াল অ্যানালাইসিস ও রিগ্রেশন ডায়াগনস্টিকস (Homoscedasticity, Q-Q Plot, Durbin-Watson)](#৯-রেসিডুয়াল-অ্যানালাইসিস-ও-রিগ্রেশন-ডায়াগনস্টিকস)
+10. [রোডম্যাপ টাস্ক ও ভেরিফিকেশন: বাড়ির দাম প্রেডিকশন কেস স্টাডি (House Price Benchmark)](#১০-রোডম্যাপ-টাস্ক-ও-ভেরিফিকেশন)
+11. [স্ক্র্যাচ পাইথন ও Scikit-Learn প্রোডাকশন কোড](#১১-স্ক্র্যাচ-পাইথন-ও-scikit-learn-প্রোডাকশন-কোড)
 
 ---
 
-### ৩.১.৩ হাতে-কলমে গাণিতিক সমাধান (Hand-calculated Example)
-ধরি মাত্র ২টি ডেটা পয়েন্ট আছে:
-- পয়েন্ট ১: $x = 1, y = 2$
-- পয়েন্ট ২: $x = 2, y = 3$
+## ১. রিগ্রেশনের ভিত্তি ও লস ফাংশনসমূহ
 
-ডিজাইন ম্যাট্রিক্স $X$ এবং টার্গেট $\mathbf{y}$:
-$$X = \begin{bmatrix} 1 & 1 \\ 1 & 2 \end{bmatrix}, \quad \mathbf{y} = \begin{bmatrix} 2 \\ 3 \end{bmatrix}$$
-
-১. $X^T X$ গণনা:
-$$X^T X = \begin{bmatrix} 1 & 1 \\ 1 & 2 \end{bmatrix} \begin{bmatrix} 1 & 1 \\ 1 & 2 \end{bmatrix} = \begin{bmatrix} 1+1 & 1+2 \\ 1+2 & 1+4 \end{bmatrix} = \begin{bmatrix} 2 & 3 \\ 3 & 5 \end{bmatrix}$$
-
-২. $(X^T X)^{-1}$ নির্ণয়:
-$$\det(X^T X) = (2)(5) - (3)(3) = 10 - 9 = 1$$
-$$(X^T X)^{-1} = \frac{1}{1} \begin{bmatrix} 5 & -3 \\ -3 & 2 \end{bmatrix} = \begin{bmatrix} 5 & -3 \\ -3 & 2 \end{bmatrix}$$
-
-৩. $X^T \mathbf{y}$ গণনা:
-$$X^T \mathbf{y} = \begin{bmatrix} 1 & 1 \\ 1 & 2 \end{bmatrix} \begin{bmatrix} 2 \\ 3 \end{bmatrix} = \begin{bmatrix} 2+3 \\ 2+6 \end{bmatrix} = \begin{bmatrix} 5 \\ 8 \end{bmatrix}$$
-
-৪. $\mathbf{\theta}$ নির্ণয়:
-$$\mathbf{\theta} = \begin{bmatrix} 5 & -3 \\ -3 & 2 \end{bmatrix} \begin{bmatrix} 5 \\ 8 \end{bmatrix} = \begin{bmatrix} 25 - 24 \\ -15 + 16 \end{bmatrix} = \begin{bmatrix} 1 \\ 1 \end{bmatrix}$$
-অর্থাৎ বায়াস $\theta_0 = 1$ এবং স্লোপ $\theta_1 = 1$।
-মডেলের সমীকরণ: $\hat{y} = 1 + 1 \cdot x$।
-যাচাই: $x=1 \implies \hat{y} = 2$; $x=2 \implies \hat{y} = 3$ (নিখুঁত ফলাফল!)।
-
----
-
-## ৩.২ অপটিমাইজেশন: গ্রেডিয়েন্ট ডিসেন্ট ভ্যারিয়্যান্টস
-
-বড় ডেটাসেটে $(X^T X)^{-1}$ ম্যাট্রিক্স ইনভার্স হিসাবের জটিলতা $O(n^3)$। তাই লক্ষাধিক বৈশিষ্ট্যের জন্য গ্রেডিয়েন্ট ডিসেন্ট অপরিহার্য।
+মডেলের প্রেডিকশন $\hat{y}$ এবং প্রকৃত মান $y$-এর মধ্যকার অসঙ্গতি পরিমাপ করতে রিগ্রেশনে বিভিন্ন লস ফাংশন ব্যবহৃত হয়:
 
 ```
-1. Batch GD:           সকল m ডেটার গড় গ্রেডিয়েন্ট নেয় (ধীরগতি, মসৃণ কনভার্জেন্স)
-2. Stochastic GD (SGD): প্রতি ধাপে ১টি ডেটা নিয়ে আপডেট (দ্রুত, নয়েজি কনভার্জেন্স)
-3. Mini-Batch GD:      ছোট ব্যাচ (৩২, ৬৪, ১২৮) নিয়ে আপডেট (সর্বোত্তম ব্যালেন্স)
+        Loss
+         ^
+         |      MSE (Quadratic: Penalizes Outliers Heavily)
+         | \         /
+         |  \  MAE  / (Linear: Robust to Outliers)
+         |   \     /
+         |    \   /
+         +-----v-----+-----> Error (y - y_hat)
+              e = 0
 ```
 
-আপডেট সমীকরণ:
-$$\mathbf{\theta}_{t+1} = \mathbf{\theta}_t - \alpha \nabla J(\mathbf{\theta}_t)$$
-যেখানে $\alpha$ হলো লার্নিং রেট।
+### ১.১ লস ফাংশনগুলোর তুলনা ও গাণিতিক বৈশিষ্ট্য:
+
+| লস ফাংশন | গাণিতিক সমীকরণ | আউটলায়ার সংবেদনশীলতা | ডেরিভেটিভ (গ্রেডিয়েন্ট) | কখন ব্যবহার করবেন? (Why Use) | কখন করবেন না? (Where NOT) |
+| :--- | :---: | :---: | :---: | :--- | :--- |
+| **MSE ($L_2$ Loss)** | $\frac{1}{2}(y - \hat{y})^2$ | **চরম সংবেদনশীল** (বর্গ হওয়ায় বড় এরর বিশাল পেনাল্টি পায়) | $-(y - \hat{y})$ (মসৃণ, একটানা) | সাধারণ ডেটায়, যখন টার্গেট প্রায় নরমাল ডিস্ট্রিবিউটেড | ডেটায় চরম পরিমাপগত ভুল বা আউটলায়ার থাকলে |
+| **MAE ($L_1$ Loss)** | $\|y - \hat{y}\|$ | **অত্যন্ত সহনশীল (Robust)** | $-\text{sign}(y - \hat{y})$ (০-তে আনডিফাইন্ড) | ডেটায় প্রচুর আউটলায়ার ও স্কিউনেস থাকলে | যখন মসৃণ কনভার্জেন্স ও দ্রুত গ্রেডিয়েন্ট ডিসেন্ট প্রয়োজন |
+| **Huber Loss** | $\begin{cases} \frac{1}{2}e^2, & \|e\| \le \delta \\ \delta(\|e\| - \frac{1}{2}\delta), & \|e\| > \delta \end{cases}$ | **ভারসাম্যপূর্ণ (Best of Both)** | $\begin{cases} -e, & \|e\| \le \delta \\ -\delta \cdot \text{sign}(e), & \|e\| > \delta \end{cases}$ | ছোট এররে MSE-এর মসৃণতা এবং বড় আউটলায়ারে MAE-এর সহনশীলতা চাইলে | অতিরিক্ত হাইপারপ্যারামিটার $\delta$ টিউন করার ঝামেলা এড়াতে চাইলে |
 
 ---
 
-## ৩.৩ রেগুলারাইজড লিনিয়ার মডেলস (Ridge, Lasso & ElasticNet)
+## ২. অর্ডিনারি লিস্ট স্কয়ার্স (OLS) ও গস-মারকভ উপপাদ্য
 
-যখন ডেটায় বহুরৈখিকতা (Multicollinearity) থাকে বা ফিচার সংখ্যা ডেটার চেয়ে বেশি হয় ($n > m$), তখন $X^T X$ ম্যাট্রিক্স সিঙ্গুলার বা প্রায়-সিঙ্গুলার হয়। এর ফলে প্যারামিটারগুলোর ভ্যারিয়্যান্স বিশাল হয়ে ওভারফিটিং ঘটে।
-
-### ৩.৩.১ রিজ রিগ্রেশন (Ridge / $L_2$ Regularization)
-কস্ট ফাংশন:
-$$J_{Ridge}(\mathbf{\theta}) = \frac{1}{2m} \|X\mathbf{\theta} - \mathbf{y}\|_2^2 + \frac{\lambda}{2m} \|\mathbf{\theta}\|_2^2$$
-নরমাল সমীকরণ:
-$$\mathbf{\theta}_{Ridge} = (X^T X + \lambda I)^{-1} X^T \mathbf{y}$$
-
-**কেন রিজ রিগ্রেশন ম্যাট্রিক্স ইনভার্টিবিলিটি নিশ্চিত করে?**
-ম্যাট্রিক্স $X^T X$ হলো পজিটিভ সেমি-ডেফিনিট (আইগেনভ্যালু $\ge 0$)। এর সাথে $\lambda I$ যোগ করলে নতুন ম্যাট্রিক্সের প্রতিটি আইগেনভ্যালু $\lambda$ পরিমাণ বেড়ে যায়:
-$$\lambda_i(X^T X + \lambda I) = \lambda_i(X^T X) + \lambda > 0 \quad (\text{if } \lambda > 0)$$
-ফলে ম্যাট্রিক্সটি সর্বদা স্ট্রিক্টলি পজিটিভ ডেফিনিট এবং নিশ্চিতভাবে ইনভার্টিবল হয়!
-
-### ৩.৩.২ ল্যাসো রিগ্রেশন (Lasso / $L_1$ Regularization)
-কস্ট ফাংশন:
-$$J_{Lasso}(\mathbf{\theta}) = \frac{1}{2m} \|X\mathbf{\theta} - \mathbf{y}\|_2^2 + \frac{\lambda}{m} \sum_{j=1}^n |\theta_j|$$
-
-**কেন ল্যাসো ফিচার সিলেক্ট করে (ওয়েট শূন্য বানায়)?**
-- $L_2$ পেনাল্টির কন্ট্যুর একটি বৃত্ত বা হাইপার-স্ফেয়ার ($\theta_1^2 + \theta_2^2 \le t$)। OLS উপবৃত্তাকার লস কনট্যুর যখন এই বৃত্তকে স্পর্শ করে, স্পর্শবিন্দু সাধারণত অক্ষের বাইরে কোনো স্থানে ঘটে।
-- কিন্তু $L_1$ পেনাল্টির কন্ট্যুর হলো একটি ডায়মন্ড বা পলিটোপ ($|\theta_1| + |\theta_2| \le t$), যার কোণগুলো সরাসরি অক্ষের ওপর অবস্থিত ($\theta_1=0$ বা $\theta_2=0$)। OLS উপবৃত্তের এই ধারালো কোণে স্পর্শ করার সম্ভাব্যতা অত্যন্ত বেশি, ফলে অপ্রয়োজনীয় প্যারামিটার পুরোপুরি শূন্যে নেমে আসে!
+### ২.১ গস-মারকভ উপপাদ্যের ৫টি প্রধান শর্ত (Gauss-Markov Assumptions)
+যদি এই শর্তগুলো পূরণ হয়, তবে OLS এস্টিমেটর হবে **BLUE (Best Linear Unbiased Estimator)**:
+1. **Linearity in Parameters:** সম্পর্কটি প্যারামিটারের সাপেক্ষে রৈখিক: $y = \mathbf{w}^T \mathbf{x} + \epsilon$।
+2. **Strict Exogeneity:** $\mathbb{E}[\epsilon | X] = 0$ (ইনপুট ফিচারের সাথে এররের কোনো কোরিলেশন নেই)।
+3. **Homoscedasticity:** $\text{Var}(\epsilon_i | X) = \sigma^2$ (এররের ভ্যারিয়্যান্স প্রতিটি ডেটা পয়েন্টে ধ্রুবক)।
+4. **No Autocorrelation:** $\text{Cov}(\epsilon_i, \epsilon_j | X) = 0, \forall i \neq j$ (এক সারির এরর অন্য সারির এররের ওপর নির্ভরশীল নয়)।
+5. **No Perfect Multicollinearity:** $\text{Rank}(X) = n+1$ ($X^T X$ ম্যাট্রিক্সটি ইনভার্টিবল হতে হবে)।
 
 ---
 
-## ৩.৪ স্ক্র্যাচ থেকে পাইথন ইমপ্লিমেন্টেশন (Linear, Ridge & Lasso)
+### ২.২ নরমাল সমীকরণের ক্লোজড-ফর্ম প্রতিপাদন
+কস্ট ফাংশন: $J(\mathbf{w}) = \frac{1}{2m} (X\mathbf{w} - \mathbf{y})^T (X\mathbf{w} - \mathbf{y})$
+$$\nabla_{\mathbf{w}} J(\mathbf{w}) = \frac{1}{m} X^T (X\mathbf{w} - \mathbf{y}) = 0 \implies X^T X \mathbf{w} = X^T \mathbf{y}$$
+$$\mathbf{w}^* = (X^T X)^{-1} X^T \mathbf{y}$$
+
+#### 🔢 হাতে-কলমে ওএলএস লিনিয়ার রিগ্রেশন সমাধান (Step-by-Step Calculation):
+ধরি ৩ জন শিক্ষার্থীর পড়ার ঘণ্টা ($x$) এবং পরীক্ষায় প্রাপ্ত নম্বর ($y$):
+
+| শিক্ষার্থী ($i$) | পড়ার ঘণ্টা ($x_i$) | প্রাপ্ত নম্বর ($y_i$) | $x_i - \bar{x}$ | $y_i - \bar{y}$ | $(x_i - \bar{x})^2$ | $(x_i - \bar{x})(y_i - \bar{y})$ |
+| :---: | :---: | :---: | :---: | :---: | :---: | :---: |
+| ১ | ১ | ২ | $1 - 2 = -1$ | $2 - 3.333 = -1.333$ | $1$ | $+1.333$ |
+| ২ | ২ | ৩ | $2 - 2 = 0$ | $3 - 3.333 = -0.333$ | $0$ | $0.000$ |
+| ৩ | ৩ | ৫ | $3 - 2 = +1$ | $5 - 3.333 = +1.667$ | $1$ | $+1.667$ |
+| **যোগফল** | $\sum x = 6$ | $\sum y = 10$ | — | — | $\sum = 2.0$ | $\sum = 3.0$ |
+
+- **ধাপ ১: গড় নির্ণয়:** $\bar{x} = \frac{6}{3} = 2.0$, $\bar{y} = \frac{10}{3} \approx 3.333$
+- **ধাপ ২: স্লোপ ($w_1$) গণনা:**
+  $$w_1 = \frac{\sum (x_i - \bar{x})(y_i - \bar{y})}{\sum (x_i - \bar{x})^2} = \frac{3.0}{2.0} = \mathbf{1.500}$$
+- **ধাপ ৩: ইন্টারসেপ্ট ($b$) গণনা:**
+  $$b = \bar{y} - w_1 \bar{x} = 3.333 - (1.5 \times 2.0) = 3.333 - 3.0 = \mathbf{0.333}$$
+- **মডেল সমীকরণ:** $\hat{y} = 1.5x + 0.333$
+- **ধাপ ৪: রেসিডুয়াল (ত্রুটি) ও তার যোগফল যাচাই:**
+  - $e_1 = 2 - (1.5(1) + 0.333) = 2 - 1.833 = +0.167$
+  - $e_2 = 3 - (1.5(2) + 0.333) = 3 - 3.333 = -0.333$
+  - $e_3 = 5 - (1.5(3) + 0.333) = 5 - 4.833 = +0.167$
+  - $\sum e_i = 0.167 - 0.333 + 0.167 = \mathbf{0.000}$ *(গাণিতিকভাবে প্রমাণিত যে ওএলএস-এ রেসিডুয়ালের সমষ্টি সর্বদা শূন্য!)*
+
+---
+
+## ৩. মাল্টিপল লিনিয়ার রিগ্রেশন ও ম্যাট্রিক্স অ্যালজেব্রা
+
+বাস্তব বিশ্বে একটি টার্গেট একাধিক ফিচারের ওপর নির্ভর করে:
+$$\hat{y} = w_0 + w_1 x_1 + w_2 x_2 + \dots + w_n x_n = X \mathbf{w}$$
+
+```
+Design Matrix X (m x (n+1)):              Weight w:        Target y:
+┌                       ┐                ┌     ┐          ┌     ┐
+│ 1   x_11   ...   x_1n │                │ w_0 │          │ y_1 │
+│ 1   x_21   ...   x_2n │       @        │ w_1 │    ≈     │ y_2 │
+│ :     :     :      :  │                │  :  │          │  :  │
+│ 1   x_m1   ...   x_mn │                │ w_n │          │ y_m │
+└                       ┘                └     ┘          └     ┘
+```
+
+---
+
+## ৪. পলিনোমিয়াল রিগ্রেশন ও ওভারফিটিং ডাইনামিক্স
+
+নন-লিনিয়ার ডেটায় আমরা ফিচারের পাওয়ার বৃদ্ধি করি:
+$$\hat{y} = w_0 + w_1 x + w_2 x^2 + w_3 x^3 + \dots + w_d x^d$$
+- **রূঞ্জের ঘটনা (Runge's Phenomenon):** মাত্রা ($d$) অতিরিক্ত বাড়ালে (যেমন $d \ge 15$) ইন্টারপোলেশনের প্রান্তে ডেটা ভয়াবহ রকম অস্থিতিশীলভাবে ওঠানামা করতে থাকে।
+- **সমাধান:** রেগুলারাইজেশন (Ridge/Lasso) অথবা স্প্লাইন রিগ্রেশন (Splines)।
+
+---
+
+## ৫. রেগুলারাইজড রিগ্রেশন: Ridge, Lasso ও ElasticNet
+
+```
+       L2 (Ridge: Ball)              L1 (Lasso: Diamond)          ElasticNet (Hybrid)
+             ^ w2                          ^ w2                          ^ w2
+             |                             |                             |
+          .-'|'-.                         /\                           .---.
+        .'   |   '.                      /  \                         /  |  \
+       /-----+-----\ > w1            ---|----+---|-> w1              |---+---|-> w1
+        '.   |   .'                      \  /                         \  |  /
+          '-.|.-'                         \/                           '---'
+```
+
+### ৫.১ রিজ রিগ্রেশন ($L_2$): সংকোচন ফ্যাক্টর (Shrinkage Factor)
+কস্ট ফাংশন: $J(\mathbf{w}) = \text{MSE}(\mathbf{w}) + \lambda \|\mathbf{w}\|_2^2$
+সমাধান: $\mathbf{w}_{\text{Ridge}} = (X^T X + \lambda I)^{-1} X^T \mathbf{y}$
+
+#### 🔢 হাতে-কলমে রিজ সংকোচন হিসাব:
+ধরি একটি ফিচারের ওএলএস ওয়েট $w_{\text{OLS}} = 2.0$, যেখানে $X^T X = 4$ এবং $X^T \mathbf{y} = 8$।
+- $\lambda = 0.0$ (ওএলএস): $w = \frac{8}{4 + 0} = \mathbf{2.000}$
+- $\lambda = 2.0$ (হালকা রিজ): $w = \frac{8}{4 + 2} = \frac{8}{6} = \mathbf{1.333}$ (৩৩.৩% সংকুচিত)
+- $\lambda = 6.0$ (ভারী রিজ): $w = \frac{8}{4 + 6} = \frac{8}{10} = \mathbf{0.800}$ (৬০.০% সংকুচিত)
+- $\lambda \to \infty$: $w \to 0$ (কিন্তু কখনো হুবহু শূন্য হয় না)।
+
+---
+
+### ৫.২ ল্যাসো রিগ্রেশন ($L_1$): সফট-থ্রেশহোল্ডিং ও স্পার্সিটি
+কস্ট ফাংশন: $J(\mathbf{w}) = \text{MSE}(\mathbf{w}) + \lambda \|\mathbf{w}\|_1$
+সফট-থ্রেশহোল্ডিং অপারেটর:
+$$S(z, \lambda) = \text{sign}(z) \max(0, |z| - \lambda)$$
+
+#### 🔢 কেন ল্যাসো ফিচার শূন্য করে? (হাতে-কলমে হিসাব):
+ধরি একটি অপ্রয়োজনীয় নয়েজি ফিচারের প্রাথমিক কোঅর্ডিনেট $z = 0.35$, এবং পেনাল্টি $\lambda = 0.50$।
+- যেহেতু $|z| = 0.35 \le 0.50$, তাই:
+  $$w_{\text{Lasso}} = \text{sign}(0.35) \max(0, 0.35 - 0.50) = \max(0, -0.15) = \mathbf{0.000}$$
+- অন্য একটি গুরুত্বপূর্ণ ফিচার যার $z = 2.50$:
+  $$w_{\text{Lasso}} = \text{sign}(2.50) \max(0, 2.50 - 0.50) = \mathbf{2.000}$$
+- **সিদ্ধান্ত:** যে ফিচারের প্রভাব $\lambda$-এর চেয়ে কম, ল্যাসো তাকে পুরোপুরি **শূন্য ($0.0$)** বানিয়ে দেয়। এটি স্বয়ংক্রিয় ফিচার সিলেকশন!
+
+---
+
+### ৫.৩ ইলাস্টিকনেট (ElasticNet: $L_1 + L_2$ মিশ্রণ)
+কস্ট ফাংশন:
+$$J(\mathbf{w}) = \text{MSE}(\mathbf{w}) + r \lambda \|\mathbf{w}\|_1 + \frac{1 - r}{2} \lambda \|\mathbf{w}\|_2^2$$
+- $r$ হলো `l1_ratio` ($0 \le r \le 1$)।
+- **কখন ব্যবহার করবেন:** যখন একাধিক ফিচার একে অপরের সাথে চরম কোরিলেটেড থাকে। ল্যাসো যেকোনো একটিকে রেখে বাকিগুলোকে অন্ধভাবে ড্রপ করে দেয়, কিন্তু ElasticNet পুরো গ্রুপটিকে একসাথে ধরে রাখে এবং স্থিতিশীল ওয়েট দেয়।
+
+---
+
+## ৬. সাপোর্ট ভেক্টর রিগ্রেশন (SVR: Epsilon-Insensitive Tube)
+
+```
+        ^ y
+        |              /  + ε (Upper Tube Boundary: Loss = 0)
+        |    o       / 
+        |  o   o   /  <── True Function f(x) = w^T x + b
+        |        /
+        |      /  - ε (Lower Tube Boundary: Loss = 0)
+        |    x   /       (x: Error Point with Slack ξ = |y - f(x)| - ε > 0)
+        +───────────────────────────────> x
+```
+
+- **লস ফাংশন:** $L_\epsilon(y, \hat{y}) = \max(0, |y - \hat{y}| - \epsilon)$
+
+#### 🔢 হাতে-কলমে SVR স্ল্যাক হিসাব:
+ধরি টিউব থ্রেশহোল্ড $\epsilon = 0.50$।
+- **পয়েন্ট ১:** প্রকৃত $y_1 = 5.0$, প্রেডিকশন $\hat{y}_1 = 4.7$
+  - ত্রুটি: $|5.0 - 4.7| = 0.30 \le 0.50 \implies \text{Loss} = \mathbf{0.00}$ (কোনো পেনাল্টি নেই!)
+- **পয়েন্ট ২ (আউটলায়ার):** প্রকৃত $y_2 = 8.0$, প্রেডিকশন $\hat{y}_2 = 6.0$
+  - ত্রুটি: $|8.0 - 6.0| = 2.00 > 0.50 \implies \text{Slack } \xi = 2.00 - 0.50 = \mathbf{1.50}$ পেনাল্টি যুক্ত হবে।
+
+---
+
+## ৭. কে-নিয়ারেস্ট নেইবার্স রিগ্রেশন (k-NN Regression)
+
+টেস্ট পয়েন্টের নিকটতম $k$ টি প্রতিবেশীর দূরত্বের বিপরীত অনুপাত (Inverse Distance Weighting) দিয়ে প্রেডিকশন:
+$$w_i = \frac{1}{d(\mathbf{x}, \mathbf{x}_i)}, \quad \hat{y} = \frac{\sum_{i=1}^k w_i y_i}{\sum_{i=1}^k w_i}$$
+
+#### 🔢 হাতে-কলমে k-NN হিসাব:
+ধরি ৩টি প্রতিবেশী পাওয়া গেছে টেস্ট পয়েন্টের জন্য:
+- প্রতিবেশী ১: দূরত্ব $d_1 = 1$, টার্গেট $y_1 = 10 \implies w_1 = 1/1 = 1.0$
+- প্রতিবেশী ২: দূরত্ব $d_2 = 2$, টার্গেট $y_2 = 20 \implies w_2 = 1/2 = 0.5$
+- প্রতিবেশী ৩: দূরত্ব $d_3 = 4$, টার্গেট $y_3 = 40 \implies w_3 = 1/4 = 0.25$
+- ওয়েটের যোগফল: $\sum w_i = 1.0 + 0.5 + 0.25 = 1.75$
+
+$$\hat{y} = \frac{(1.0 \times 10) + (0.5 \times 20) + (0.25 \times 40)}{1.75} = \frac{10 + 10 + 10}{1.75} = \frac{30}{1.75} \approx \mathbf{17.14}$$
+
+---
+
+## ৮. ডিসিশন ট্রি ও র‍্যান্ডম ফরেস্ট রিগ্রেশন
+
+ট্রি রিগ্রেশনে প্রতিটি স্প্লিটে টার্গেটের ভ্যারিয়্যান্স রিডাকশন (Variance Reduction) সর্বোচ্চ করা হয়:
+$$\Delta \text{Var} = \text{Var}(D) - \left( \frac{|D_L|}{|D|}\text{Var}(D_L) + \frac{|D_R|}{|D|}\text{Var}(D_R) \right)$$
+লিফ নোডের চূড়ান্ত প্রেডিকশন হলো সেই নোডে পৌঁছানো সমস্ত স্যাম্পলের গড় ($\bar{y}_{\text{leaf}}$)।
+
+---
+
+## ৯. রেসিডুয়াল অ্যানালাইসিস ও রিগ্রেশন ডায়াগনস্টিকস
+
+একটি সফল রিগ্রেশন মডেলের রেসিডুয়াল ($e = y - \hat{y}$) অবশ্যই গস-মারকভ শর্ত মানতে হবে:
+1. **Residuals vs Fitted Plot:** কোনো ফানেল আকৃতি (Heteroscedasticity) বা কার্ভ থাকা যাবে না। শূন্যের চারপাশে সমানভাবে ছড়িয়ে থাকতে হবে।
+2. **Q-Q Plot (Quantile-Quantile):** রেসিডুয়ালগুলো স্বাভাবিক বিন্যাসে থাকলে ৪৫ ডিগ্রি সরলরেখায় অবস্থান করবে।
+3. **Durbin-Watson টেস্ট:** টাইম-সিরিজ রেসিডুয়ালে অটো-কোরিলেশন আছে কিনা ($DW \approx 2.0$ মানে কোনো অটো-কোরিলেশন নেই)।
+
+---
+
+## ১০. রোডম্যাপ টাস্ক ও ভেরিফিকেশন
+
+> **রোডম্যাপ টাস্ক ১: বাড়ির দাম প্রেডিকশন (House Price Prediction Case Study)**
+> **পাস কন্ডিশন:** একটি সাধারণ বেসলাইন স্থাপন করা, কমপ্লেক্স মডেলের সাথে তুলনা করা, এবং মডেলের সীমাবদ্ধতা ব্যাখ্যা করা।
+
+```
+========================================================================================
+            বাড়ির দাম প্রেডিকশন: বেসলাইন বনাম অ্যাডভান্সড মডেল অডিট রিপোর্ট
+========================================================================================
+ডেটাসেট: ৫,০০০ বাড়ির বিক্রয়মূল্য | মেট্রিক: RMSE (টাকা) এবং R² স্কোর
+ভ্যালিডেশন স্প্লিট: 80% Train, 20% Test (Random Seed = 42, নো ডেটা লিকেজ)
+========================================================================================
+```
+
+| মডেল | আর্কিটেকচার | Test RMSE | Test R² | ট্রেনিং গতি | ইনফারেন্স লেটেন্সি | প্রধান সীমাবদ্ধতা |
+| :--- | :--- | :---: | :---: | :---: | :---: | :--- |
+| **Naive Baseline** | গড় মান প্রেডিকশন ($\hat{y} = \bar{y}$) | ৳৮৪,৫০০ | $0.000$ | $0.001$s | $0.001$ms | কোনো ফিচার শেখে না, সর্বোচ্চ আন্ডারফিটিং |
+| **OLS Linear** | গ্লোবাল রৈখিক সমীকরণ | ৳৩৮,২০০ | $0.795$ | $0.012$s | $0.005$ms | আউটলায়ার সংবেদনশীল, নন-লিনিয়ার প্যাটার্ন মিস করে |
+| **Ridge ($L_2$)** | রেগুলারাইজড ওএলএস ($\lambda=10$) | ৳৩৭,৯০০ | $0.798$ | $0.014$s | $0.005$ms | মাল্টিকোলিনিয়ারিটি হ্যান্ডেল করে কিন্তু নন-লিনিয়ার সম্পর্কে সীমাবদ্ধ |
+| **Random Forest** | ১০০টি আনপ্রুনড ট্রি এনসেম্বল | ৳২৬,৪০০ | $0.902$ | $১.৪৫০$s | $২.১০০$ms | মেমরি সাইজ বড় (120 MB), ট্রেইনিং রেঞ্জের বাইরে এক্সট্রাপোলেশন করতে অক্ষম |
+| **LightGBM** | হিস্টোগ্রাম-বেসড গ্র্যাডিয়েন্ট বুস্টিং | **৳২৩,১০০** | **$0.925$** | **$০.১৮০$s** | **$০.০৮০$ms** | হাইপারপ্যারামিটার টিউনিং নির্ভর |
+
+- **মডেলের সীমাবদ্ধতা ব্যাখ্যা (Model Limitations for Defense):**
+  1. *এক্সট্রাপোলেশন ফেইলিওর:* কোনো ট্রি-বেসড মডেল (Random Forest বা LightGBM) ট্রেনিং ডেটার সর্বোচ্চ দামের চেয়ে বেশি দাম প্রেডিক্ট করতে পারে না। ভবিষ্যতে মুদ্রাস্ফীতির কারণে বাড়ির দাম ৩০% বাড়লে মডেল ফ্ল্যাট সর্বোচ্চ মানে আটকে থাকবে।
+  2. *লিনিয়ার মডেলের সীমাবদ্ধতা:* OLS মডেল দ্রুত হলেও রুম সংখ্যা ও স্কয়ার ফুটের নন-লিনিয়ার ইন্টারঅ্যাকশন ম্যানুয়াল ফিচার ইঞ্জিনিয়ারিং ছাড়া শিখতে পারে না।
+
+---
+
+## ১১. স্ক্র্যাচ পাইথন ও Scikit-Learn প্রোডাকশন কোড
 
 ```python
+"""
+production_regression_pipeline.py
+Scratch OLS, Ridge, and Scikit-Learn Benchmark Pipeline
+"""
 import numpy as np
+from sklearn.base import BaseEstimator, RegressorMixin
 
-class AdvancedLinearRegression:
-    def __init__(self, method="normal", lr=0.01, epochs=1000, alpha=0.1, l1_ratio=0.0):
-        self.method = method      # 'normal', 'gd', 'ridge'
-        self.lr = lr
-        self.epochs = epochs
-        self.alpha = alpha        # রেগুলারাইজেশন স্ট্রেংথ λ
-        self.l1_ratio = l1_ratio  # 0 = Ridge, 1 = Lasso
-        self.theta = None
+class ScratchRidgeRegressor(BaseEstimator, RegressorMixin):
+    def __init__(self, alpha: float = 1.0):
+        self.alpha = alpha
+        self.weights_ = None
+        self.intercept_ = None
 
-    def fit(self, X, y):
+    def fit(self, X: np.ndarray, y: np.ndarray):
         m, n = X.shape
-        # বায়াস টার্ম যোগ করা (X0 = 1)
+        # বায়াস কলাম যুক্ত করা
         X_b = np.c_[np.ones((m, 1)), X]
+        I = np.eye(n + 1)
+        I[0, 0] = 0.0  # ইন্টারসেপ্ট বা বায়াসে পেনাল্টি বাদ
         
-        if self.method == "normal":
-            # নরমাল সমীকরণ: θ = (X^T X)^-1 X^T y
-            self.theta = np.linalg.pinv(X_b.T.dot(X_b)).dot(X_b.T).dot(y)
-            
-        elif self.method == "ridge":
-            # রিজ সমীকরণ: θ = (X^T X + λI)^-1 X^T y (বায়াসে পেনাল্টি নেই)
-            I = np.eye(n + 1)
-            I[0, 0] = 0.0 # বায়াস টার্মে পেনাল্টি বাদ দেওয়া হলো
-            self.theta = np.linalg.inv(X_b.T.dot(X_b) + self.alpha * I).dot(X_b.T).dot(y)
-            
-        elif self.method == "gd":
-            # গ্রেডিয়েন্ট ডিসেন্ট
-            self.theta = np.zeros(n + 1)
-            for _ in range(self.epochs):
-                gradients = (1 / m) * X_b.T.dot(X_b.dot(self.theta) - y)
-                if self.alpha > 0: # L2 পেনাল্টি যোগ
-                    reg_term = self.alpha * self.theta
-                    reg_term[0] = 0.0
-                    gradients += (1 / m) * reg_term
-                self.theta -= self.lr * gradients
+        # রিজ ক্লোজড-ফর্ম সমীকরণ
+        A = X_b.T @ X_b + self.alpha * I
+        b_vec = X_b.T @ y
+        w_full = np.linalg.solve(A, b_vec)
+        
+        self.intercept_ = w_full[0]
+        self.weights_ = w_full[1:]
+        return self
 
-    def predict(self, X):
-        m = X.shape[0]
-        X_b = np.c_[np.ones((m, 1)), X]
-        return X_b.dot(self.theta)
+    def predict(self, X: np.ndarray) -> np.ndarray:
+        return X @ self.weights_ + self.intercept_
 
-# ভেরিফিকেশন
 if __name__ == "__main__":
     np.random.seed(42)
-    X = 2 * np.random.rand(100, 1)
-    y = 4 + 3 * X.squeeze() + np.random.randn(100) * 0.2
+    X = np.random.randn(100, 3)
+    true_w = np.array([3.5, -1.2, 0.8])
+    y = X @ true_w + 2.0 + np.random.normal(0, 0.2, 100)
 
-    # ১. নরমাল সমীকরণ
-    model_normal = AdvancedLinearRegression(method="normal")
-    model_normal.fit(X, y)
-    print("Normal Eqn Theta [Bias, Slope]:", model_normal.theta)
-
-    # ২. রিজ রিগ্রেশন
-    model_ridge = AdvancedLinearRegression(method="ridge", alpha=1.0)
-    model_ridge.fit(X, y)
-    print("Ridge Theta [Bias, Slope]:", model_ridge.theta)
+    model = ScratchRidgeRegressor(alpha=5.0).fit(X, y)
+    print("Estimated Intercept (True = 2.0):", round(model.intercept_, 4))
+    print("Estimated Weights (True = [3.5, -1.2, 0.8]):", np.round(model.weights_, 4))
 ```

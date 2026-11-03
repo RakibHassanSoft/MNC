@@ -1,46 +1,47 @@
-# 🐍 মেশিন লার্নিং পাইথন প্যাকেজ ও এক্সপ্লোরেটরি ডেটা অ্যানালাইসিস (EDA) মাস্টার গাইড
+# 🐍 মেশিন লার্নিং পাইথন প্যাকেজ, SQL ও এক্সপ্লোরেটরি ডেটা অ্যানালাইসিস (EDA) মাস্টার গাইড
 
-> **"ডেটা সায়েন্স এবং মেশিন লার্নিংয়ের ভিত্তিপ্রস্তর হলো সঠিক পাইথন লাইব্রেরির ওপর গভীর দখল এবং ডেটা থেকে অর্থবহ অন্তর্দৃষ্টি (Insights) বের করে আনার দক্ষতা।"**
+> **"ডেটা সায়েন্স এবং মেশিন লার্নিংয়ের ভিত্তিপ্রস্তর হলো সঠিক পাইথন সফটওয়্যার ইঞ্জিনিয়ারিং, ডেটাবেজ লেভেলে SQL ফিচার পাইপলাইনিং, লাইব্রেরির ওপর গভীর দখল এবং ডেটা থেকে অর্থবহ অন্তর্দৃষ্টি (Insights) বের করে আনার দক্ষতা।"**
 
-এই ডিরেক্টরিটি বিশেষভাবে তৈরি করা হয়েছে যাতে আপনি মেশিন লার্নিংয়ের জন্য অপরিহার্য প্রতিটি পাইথন লাইব্রেরি—**NumPy**, **Pandas**, **Matplotlib**, **Seaborn**, এবং **Scikit-Learn**—পুঙ্খানুপুঙ্খভাবে হাতে-কলমে শিখতে পারেন। একই সাথে এখানে রয়েছে বাংলায় সম্পূর্ণ বাস্তবমুখী **এক্সপ্লোরেটরি ডেটা অ্যানালাইসিস (EDA) গাইডলাইন**।
-
----
-
-## 📂 ফাইল ও নোটবুক সূচিপত্র (Contents & Colab Notebooks)
-
-প্রতিটি টপিকের জন্য বিস্তারিত **রিডিং নোট (.md)** এবং সরাসরি গুগুল কোলাব (Google Colab) ও জুপিটার নোটবুকে রানযোগ্য **ইন্টারেক্টিভ নোটবুক (.ipynb)** দেওয়া হয়েছে:
-
-| ক্রম | বিষয় ও লাইব্রেরি | কেন শিখবেন এবং এমএল-এ এর প্রয়োগ | ইন্টারেক্টিভ নোটবুক (.ipynb) | বিস্তারিত রিডিং নোট (.md) |
-| :---: | :--- | :--- | :---: | :---: |
-| **১** | **NumPy Mastery** | ভেক্টরাইজেশন, ব্রডকাস্টিং, ম্যাট্রিক্স অপারেশন, লিনালগ (Linear Algebra) | [👉 NumPy Notebook](file:///g:/MNC/ML/python_packages_and_eda/01_numpy_in_depth.ipynb) | [📖 NumPy Guide](file:///g:/MNC/ML/python_packages_and_eda/01_numpy_in_depth.md) |
-| **২** | **Pandas Mastery** | ডেটা লোডিং, ক্লিনিং, গ্রুপিং (`groupby`), ফিল্টারিং (`loc/iloc`), মার্জিং | [👉 Pandas Notebook](file:///g:/MNC/ML/python_packages_and_eda/02_pandas_in_depth.ipynb) | [📖 Pandas Guide](file:///g:/MNC/ML/python_packages_and_eda/02_pandas_in_depth.md) |
-| **৩** | **Matplotlib & Seaborn** | ডেটা ভিজ্যুয়ালাইজেশন, ডিস্ট্রিবিউশন প্লট, হিটম্যাপ, পেয়ারপ্লট, সাবপ্লট | [👉 Visualization Notebook](file:///g:/MNC/ML/python_packages_and_eda/03_matplotlib_and_seaborn_in_depth.ipynb) | [📖 Viz Guide](file:///g:/MNC/ML/python_packages_and_eda/03_matplotlib_and_seaborn_in_depth.md) |
-| **৪** | **Scikit-Learn Mastery** | প্রিপ্রসেসিং পাইপলাইন, মডেল সিলেকশন, ক্রস-ভ্যালিডেশন, হাইপারপ্যারামিটার টিউনিং | [👉 Sklearn Notebook](file:///g:/MNC/ML/python_packages_and_eda/04_scikit_learn_in_depth.ipynb) | [📖 Sklearn Guide](file:///g:/MNC/ML/python_packages_and_eda/04_scikit_learn_in_depth.md) |
-| **৫** | **পূর্ণাঙ্গ ডেটা অ্যানালাইসিস (EDA)** | ডেটা প্রোফাইলিং, ইউনিভ্যারিয়েট/বাইভ্যারিয়েট অ্যানালাইসিস, আউটলায়ার, VIF | [👉 Complete EDA Notebook](file:///g:/MNC/ML/python_packages_and_eda/05_complete_eda_data_analysis_guide.ipynb) | [📖 EDA Master Guide](file:///g:/MNC/ML/python_packages_and_eda/05_complete_eda_data_analysis_guide.md) |
+এই ডিরেক্টরিটি বিশেষভাবে তৈরি করা হয়েছে যাতে আপনি প্রফেশনাল মেশিন লার্নিং ইঞ্জিনিয়ার রোডম্যাপের **ফেইজ ১ (Python & Software Engineering Foundations)** এবং **ফেইজ ৩ (Data Analysis, Visualization, and SQL)** পুঙ্খানুপুঙ্খভাবে হাতে-কলমে ও গাণিতিক প্রমাণের সাথে শিখতে পারেন।
 
 ---
 
-## 🛠️ মেশিন লার্নিং পাইথন ইকোসিস্টেম আর্কিটেকচার
+## 📂 ফাইল ও রোডম্যাপ সূচিপত্র (Roadmap Phase Mapping & Guides)
+
+| ক্রম | বিষয় ও লাইব্রেরি | রোডম্যাপ ফেইজ | কেন শিখবেন এবং এমএল-এ এর প্রয়োগ | ইন্টারেক্টিভ নোটবুক | বিস্তারিত রিডিং নোট (.md) |
+| :---: | :--- | :---: | :--- | :---: | :---: |
+| **০** | **Python & SE Foundations** | **Phase 1** | মেমরি মডেল, OOP, টাইপিং, জেনারেটর, pytest, লগিং, প্রোডাকশন CLI টুল | — | [📖 Core Python & SE Guide](file:///g:/MNC/ML/python_packages_and_eda/00_python_software_engineering_foundations.md) |
+| **১** | **NumPy Mastery** | **Phase 3** | মেমরি স্ট্রাইডস, ভেক্টরাইজেশন, ব্রডকাস্টিং, LogSumExp ট্রিক, OLS নরমাল সমীকরণ | [👉 NumPy Notebook](file:///g:/MNC/ML/python_packages_and_eda/01_numpy_in_depth.ipynb) | [📖 NumPy Guide](file:///g:/MNC/ML/python_packages_and_eda/01_numpy_in_depth.md) |
+| **২** | **Pandas Mastery** | **Phase 3** | মেমরি ডাউনকাস্টিং (৮০% মেমরি সেভ), Parquet প্রেডিকেট পুশডাউন, GroupBy `transform` | [👉 Pandas Notebook](file:///g:/MNC/ML/python_packages_and_eda/02_pandas_in_depth.ipynb) | [📖 Pandas Guide](file:///g:/MNC/ML/python_packages_and_eda/02_pandas_in_depth.md) |
+| **৩** | **Matplotlib & Seaborn** | **Phase 3** | অবজেক্ট-ওরিয়েন্টেড (OO) API, ডুয়াল এক্সিস `twinx`, ECDF প্লট, কোরিলেশন মাস্কিং | [👉 Visualization Notebook](file:///g:/MNC/ML/python_packages_and_eda/03_matplotlib_and_seaborn_in_depth.ipynb) | [📖 Viz Guide](file:///g:/MNC/ML/python_packages_and_eda/03_matplotlib_and_seaborn_in_depth.md) |
+| **৪** | **Scikit-Learn Mastery** | **Phase 4** | প্রিপ্রসেসিং পাইপলাইন, ColumnTransformer, CV স্ট্র্যাটেজি, হাইপারপ্যারামিটার টিউনিং | [👉 Sklearn Notebook](file:///g:/MNC/ML/python_packages_and_eda/04_scikit_learn_in_depth.ipynb) | [📖 Sklearn Guide](file:///g:/MNC/ML/python_packages_and_eda/04_scikit_learn_in_depth.md) |
+| **৫** | **কমপ্লিট ডেটা অ্যানালাইসিস (EDA)** | **Phase 3** | স্কিউনেস, কার্টোসিস, পিয়ারসন $r$, স্পিয়ারম্যান $\rho$, কাই-স্কয়ার $\chi^2$, VIF, ১০-ফাইন্ডিং রিপোর্ট | [👉 Complete EDA Notebook](file:///g:/MNC/ML/python_packages_and_eda/05_complete_eda_data_analysis_guide.ipynb) | [📖 EDA Master Guide](file:///g:/MNC/ML/python_packages_and_eda/05_complete_eda_data_analysis_guide.md) |
+| **৬** | **SQL for Data Analysis & ML** | **Phase 3** | উইন্ডো ফাংশন (`ROW_NUMBER`, `RANK`, `DENSE_RANK`), CTEs, রোলিং উইন্ডো, RFM স্কোরিং | — | [📖 SQL for ML Guide](file:///g:/MNC/ML/python_packages_and_eda/06_sql_for_data_analysis_and_ml.md) |
+
+---
+
+## 🛠️ মেশিন লার্নিং ডেটা অ্যানালাইসিস ও ফিচার পাইপলাইন আর্কিটেকচার
 
 ```
                           ┌─────────────────────────────────────┐
-                          │     Scikit-Learn / PyTorch / TF     │ ──► Model Training & Tuning
+                          │     Transactional SQL DB / Lake     │ ──► Raw Events / Logs
                           └──────────────────┬──────────────────┘
                                              │
-                          ┌──────────────────┴──────────────────┐
-                          │          Pandas DataFrames          │ ──► Data Manipulation & Cleaning
+                                             ▼ Analytical SQL (CTEs, Windowing, Aggs)
+                          ┌─────────────────────────────────────┐
+                          │      Engineered Feature Store       │ ──► Parquet Columnar Storage
                           └──────────────────┬──────────────────┘
                                              │
-                          ┌──────────────────┴──────────────────┐
-                          │            NumPy ndarrays           │ ──► Vectorized Math & Matrix Ops
+                                             ▼ Pandas Downcasting & NumPy Vectorization
+                          ┌─────────────────────────────────────┐
+                          │   Exploratory Data Analysis (EDA)   │ ──► Skewness, VIF, Chi-Square,
+                          │         & Visual Diagnostics        │     Leakage Audit, Sanity
                           └──────────────────┬──────────────────┘
-                                             │
-                     ┌───────────────────────┴───────────────────────┐
-                     ▼                                               ▼
-         ┌───────────────────────┐                       ┌───────────────────────┐
-         │      Matplotlib       │                       │        Seaborn        │
-         │  (Low-level Plotting) │                       │ (Statistical Graphics)│
-         └───────────────────────┘                       └───────────────────────┘
+                                             │ Clean, Validated Features (X, y)
+                                             ▼
+                          ┌─────────────────────────────────────┐
+                          │   Scikit-Learn Pipelines & Models   │ ──► Training, Tuning & Deploy
+                          └─────────────────────────────────────┘
 ```
 
 ---
@@ -48,5 +49,4 @@
 ## 🚀 গুগুল কোলাবে কীভাবে রান করবেন (How to run in Google Colab)
 
 1. যে কোনো `.ipynb` ফাইল সরাসরি [Google Colab](https://colab.research.google.com)-এ গিয়ে `Upload Notebook` অপশনে আপলোড করুন।
-2. অথবা VS Code-এ সরাসরি `.ipynb` ফাইলটি ওপেন করে Python ও Jupyter এক্সটেনশন দিয়ে রান করুন।
-3. প্রতিটি কোড ব্লকে বিস্তারিত বাংলায় কমেন্ট এবং আউটপুট ব্যাখ্যা যুক্ত আছে।
+2. কোড সেলগুলো ওপর থেকে নিচে ক্রমান্বয়ে শিফট + এন্টার (`Shift + Enter`) চেপে এক্সিকিউট করুন।
