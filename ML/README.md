@@ -899,6 +899,7 @@ $$\lim_{d \to \infty} \frac{\text{dist}_{max} - \text{dist}_{min}}{\text{dist}_{
 - 📌 **Complete EDA Master Guide (Phase 3):** [05_complete_eda_data_analysis_guide.md](file:///g:/MNC/ML/python_packages_and_eda/05_complete_eda_data_analysis_guide.md) | [Colab Notebook](file:///g:/MNC/ML/python_packages_and_eda/05_complete_eda_data_analysis_guide.ipynb)
 - 📌 **SQL for Data Analysis & ML (Phase 3):** [06_sql_for_data_analysis_and_ml.md](file:///g:/MNC/ML/python_packages_and_eda/06_sql_for_data_analysis_and_ml.md)
 - 📌 **Scikit-Learn Mastery (Phase 4):** [04_scikit_learn_in_depth.md](file:///g:/MNC/ML/python_packages_and_eda/04_scikit_learn_in_depth.md) | [Colab Notebook](file:///g:/MNC/ML/python_packages_and_eda/04_scikit_learn_in_depth.ipynb)
+- 🚀 **FastAPI & AI Model Serving Master Guide (Phase 10):** [fastapi_and_ai_serving/README.md](file:///g:/MNC/ML/fastapi_and_ai_serving/README.md)
 
 ---
 *প্রস্তুতকারক: মেশিন লার্নিং অ্যান্ড ডেটা সায়েন্স কারিকুলাম রিসার্চ গ্রুপ*
